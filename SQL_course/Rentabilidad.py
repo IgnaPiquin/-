@@ -38,6 +38,7 @@ query3= '''
 
 with sqlite3.connect('Northwind.db') as conn:
     # Obteniendo los 10 productos con mas Revenue
+        
     top_product = pd.read_sql_query(query1, conn)
     top_product.plot(x='ProductName', y='Revenue', kind='bar', figsize=(10, 5), legend=False)
 
