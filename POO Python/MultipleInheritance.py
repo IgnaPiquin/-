@@ -36,7 +36,7 @@ class ArtistEmployee(Person, Artist):
 
 class Employee(Person):
     def __init__(self, name, age, nationality, work, Salary):
-        super(Employee, self).__init__(name, age, nationality)
+        super().__init__(name, age, nationality)
         self.work=work
         self.Salary=Salary
     

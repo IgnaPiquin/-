@@ -15,7 +15,7 @@ class Person:
 
 class Employee(Person):
     def __init__(self, name, age, nationality, work, Salary):
-        super(Employee, self).__init__(name, age, nationality)
+        super().__init__(name, age, nationality)
         self.work=work
         self.Salary=Salary
     
@@ -26,7 +26,7 @@ class Employee(Person):
 
 class Student(Person):
     def __init__(self, name, age, nationality, university, year):
-        super(Employee, self).__init__(name, age, nationality)
+        super().__init__(name, age, nationality)
         self.university=university
         self.year=year
     
