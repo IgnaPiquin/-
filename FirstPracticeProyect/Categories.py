@@ -29,3 +29,4 @@ class AddCategory:
     def Add_Category(self):
         self.repository.add(self.table, self.field1, self.field2, self.name, self.description)
 
+
