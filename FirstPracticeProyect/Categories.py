@@ -1,8 +1,15 @@
-class CategoryRepository:
+from abc import ABC, abstractmethod
+
+class IDataAccess(ABC):
+    @abstractmethod
+    def add(self, table, field1, field2, name, description):
+        pass
+
+class CategoryRepository(IDataAccess):
     def __init__(self, connection):
         self.connection = connection
 
-    def add_category(self, table, field1, field2, name, description):
+    def add(self, table, field1, field2, name, description):
         with self.connection:
             cursor = self.connection.cursor()
             cursor.execute(f'''
@@ -20,5 +27,5 @@ class AddCategory:
         self.repository = repository
     
     def Add_Category(self):
-        self.repository.add_category(self.table, self.field1, self.field2, self.name, self.description)
+        self.repository.add(self.table, self.field1, self.field2, self.name, self.description)
 
