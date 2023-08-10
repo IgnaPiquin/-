@@ -1,8 +1,11 @@
 from abc import ABC, abstractmethod
-
 class IDataAccess(ABC):
     @abstractmethod
     def add(self, table, field1, field2, name, description):
+        pass
+    
+    @abstractmethod
+    def show(self, table):
         pass
 
 class CategoryRepository(IDataAccess):
@@ -16,6 +19,17 @@ class CategoryRepository(IDataAccess):
                             INSERT INTO {table} ({field1}, {field2}) 
                             VALUES ('{name}', '{description}')
                             ''')
+    def show(self, table):
+        
+        pass
+
+class ShowCategories():
+    def __init__(self, table, repository):
+        self.table = table
+        self.repository = repository
+    
+    def Show_Categories(self):
+        self.repository.show(self.table)
 
 class AddCategory:
     def __init__(self, table, field1, field2, name, description, repository):
@@ -28,5 +42,3 @@ class AddCategory:
     
     def Add_Category(self):
         self.repository.add(self.table, self.field1, self.field2, self.name, self.description)
-
-
