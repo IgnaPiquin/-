@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 class IDataAccess(ABC):
     @abstractmethod
-    def add(self, table, fields, values, values_amount):
+    def add(self, table, field1, field2, name, description):
         pass
     
     @abstractmethod

@@ -10,7 +10,7 @@ def add_category(name, description):
     with sqlite3.connect('FirstPracticeProyect.db') as connection:
         repository = CategoryRepository(connection)
 
-        add_category = AddCategory('Categories', 'CategoryName', 'CategoryDescription', name, description, repository)
+        add_category = AddCategory('Categories', repository, 'CategoryName', 'CategoryDescription', name=name, description=description)
         add_category.Add_Category()
 
 #Function to add purchases to the database
@@ -22,7 +22,7 @@ def add_purchase(purchase, values):
         add_purchase.Add_Purchase()
 
 
-
+# -----------------Validations for the user--------------------
 def date_input():
     date = input('Input the date in which you bought the product(YYYY-MM-DD): ')
     x = re.search(r'\d{4}/\d{2}/\d{2}', date)
@@ -35,10 +35,12 @@ def date_input():
 def category_input():
     
     category_input = input('Input the category')
-    
-    
-
-
+query1 ='select CategoryName as Category from Categories'
+with sqlite3.connect('FirstPracticeProyect.db') as conn:
+    # Obteniendo los 10 productos con mas Revenue
+        
+    top_product = pd.read_sql_query(query1, conn)
+    print(top_product)
 # ---------- User Interaction -----------
 consult = input(f'''
                 1 - Add Category
