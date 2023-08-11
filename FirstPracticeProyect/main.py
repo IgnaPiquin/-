@@ -23,7 +23,11 @@ def add_purchase(purchase, values):
 
 
 # -----------------Validations for the user--------------------
-def date_input():
+def category_name_input():
+    name_input = input('Input the name you want to use with the new category: ')
+    
+
+def purchase_date_input():
     date = input('Input the date in which you bought the product(YYYY-MM-DD): ')
     x = re.search(r'\d{4}/\d{2}/\d{2}', date)
     while x:
@@ -32,9 +36,9 @@ def date_input():
         x = re.search(r'\d{4}/\d{2}/\d{2}', date)
     return date
 
-def category_input():
-    
+def purchase_category_input():
     category_input = input('Input the category')
+
 query1 ='select CategoryName as Category from Categories'
 with sqlite3.connect('FirstPracticeProyect.db') as conn:
     # Obteniendo los 10 productos con mas Revenue
@@ -55,7 +59,7 @@ elif consult == '2':
     values = PurchaseTF('Purchases', 'PurchaseDate', 'CategoryID', 'ProductName', 'ProductPrice', 'ProductQuantity')
     purchase = PurchaseValues
     purchase.name = input('Input the name of the product you bought: ')
-    purchase.date = date_input()
+    purchase.date = purchase_date_input()
     purchase.categoryID = input('Input the category of the product you bought: ')
     purchase.price = input('Input the price of the product you bought: ')
     purchase.quantity = input('Input the quantity of the product you bought: ')
