@@ -1,60 +1,80 @@
 from abc import ABC, abstractmethod
+import matplotlib.pyplot as plt
+import pandas as pd
 import sqlite3
-class IDataAccess(ABC):
+
+class AdDataAccess(ABC):
     @abstractmethod
-    def add(self, table, field1, field2, name, description):
+    def add(self, table, fields, values, values_amount):
         pass
 
-class PurchasesRepository(IDataAccess):
+class FilterDataAccess(ABC):
+    @abstractmethod
+    def Filter(self, table, fields, date1, date2):
+        pass
+    
+    
+class AddPurchasesRepository(AdDataAccess):
     def __init__(self, connection):
         self.connection = connection
     #Using the objects purchase, which has the name and fields of the table, and values, which has the values that are going to be stored in the database
-    def add(self, purchase, values):
+    def add(self, table, fields, values, values_amount):
         with self.connection:
             cursor = self.connection.cursor()
             cursor.execute(f'''
-                            INSERT INTO {purchase.table} 
-                            ({purchase.field1}, {purchase.field2}, {purchase.field3}, {purchase.field4}, {purchase.field5}) 
-                            VALUES ('{values.date}', '{values.categoryID}', '{values.name}', '{values.price}', '{values.quantity}')
-                            ''')
+                            INSERT INTO {table} ({fields}) 
+                            VALUES ({values_amount})
+                            ''', values)
 
 class AddPurchase:
-    def __init__(self, purchase, values, repository):
-        self.purchase = purchase
-        self.values = values
+    def __init__(self, table, repository, *args, **kwargs):
+        self.table = table
+        # The repository is the object that contains the conection to the database which was created using the CategoryRepository class.
         self.repository = repository
+        #args are the fields of the table and kwargs are the values that the user wants to use to create the new category.
+        self.field_names = args
+        self.field_values = kwargs
     
     def Add_Purchase(self):
-        self.repository.add(self.purchase, self.values)
+        # Unpack *args into field names and **kwargs into field values
+        fields = ', '.join(self.field_names)
+        values = tuple(self.field_values.values())
+        values_amount= ', '.join(['?' for _ in self.field_values])
+        
+        # fields is a string with the fields to use in the query, values is a tuple with the values that the user wants to use to create the new category, and values_amount is a string with the amount of placeholder we need to match the amount of values
+        self.repository.add(self.table, fields, values, values_amount)
 
+class ShowExpenses():
+    def __init__(self, connection):
+        self.connection = connection
+    #Using the objects purchase, which has the name and fields of the table, and values, which has the values that are going to be stored in the database
+    def date_filter(self, date1, date2):
+            query = f'''
+            SELECT PurchaseDate as Date, SUM(ProductPrice * ProductQuantity) as Spent
+            FROM Purchases 
+            WHERE PurchaseDate BETWEEN "{date1}" AND "{date2}"
+            GROUP BY PurchaseDate
+            ORDER BY PurchaseDate
+            '''
+            with sqlite3.connect('FirstPracticeProyect.db') as conn:
+                plt.style.use('seaborn')
+                expenses = pd.read_sql_query(query, conn)
+                s = input("Do you want to show the days in which you didnt purchase anything?(yes/no)")
+                if s == "yes":
+                    # Convert 'Date' column to datetime and set it as the index
+                    expenses['Date'] = pd.to_datetime(expenses['Date'])
+                    expenses.set_index('Date', inplace=True)
 
+                    # Generate a date range between date1 and date2
+                    full_date_range = pd.date_range(start=date1, end=date2, freq='D')
 
-# Purchase Table and Fields
-class PurchaseTF:
-    def __init__(self, table, field1, field2, field3,field4,field5):
-        self.table = table
-        self.field1 = field1
-        self.field2 = field2
-        self.field3 = field3
-        self.field4 = field4
-        self.field5 = field5
-
-# Values of the product which the client bought
-class PurchaseValues:
-    def __init__(self, name, date, categoryID, price, quantity):
-        self.name = name
-        self.date = date
-        self.categoryID = categoryID
-        self.price = price
-        self.quantity = quantity
-    
-    def __str__(self):
-        return '- Name: {self.name}, \n-Date: {self.date}, \n-Category: {self.category}, \n-Price: {self.price}, n\-Quantity:{self.quantity}'
-
-# values = PurchaseValues('Water', '08-10-2023', 10, 20, 5)
-# purchase = PurchaseTF('Purchases', 'PurchaseDate', 'CategoryID', 'ProductName', 'ProductPrice', 'ProductQuantity')
-# with sqlite3.connect('FirstPracticeProyect.db') as connection:
-#     repository = PurchasesRepository(connection)
-
-#     add_purchase = AddPurchase(purchase, values, repository)
-#     add_purchase.Add_Purchase()
+                    # Left join the full_date_range with expenses, filling NaN with 0
+                    expenses = expenses.reindex(full_date_range, fill_value=0)
+                else:
+                    expenses.set_index('Date', inplace=True)
+                expenses.plot(figsize=(10,8), fontsize=12)
+                plt.xlabel('Date')
+                plt.ylabel('Amount Spent')
+                plt.legend(fontsize=12)
+                plt.subplots_adjust(bottom=0.3, top=1)
+                plt.show()
