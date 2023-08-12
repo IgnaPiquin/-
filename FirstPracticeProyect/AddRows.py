@@ -8,7 +8,7 @@ class IDataAccess(ABC):
         pass
 
 # Concrete class implementing the IDataAccess interface
-class CategoryRepository(IDataAccess):
+class Repository(IDataAccess):
     def __init__(self, connection):
         self.connection = connection
 
@@ -23,7 +23,7 @@ class CategoryRepository(IDataAccess):
                             ''', values)
 
 
-class AddCategory:
+class Add:
     def __init__(self, table, repository, *args, **kwargs):
         self.table = table
         # The repository is the object that contains the conection to the database which was created using the CategoryRepository class.
@@ -32,7 +32,7 @@ class AddCategory:
         self.field_names = args
         self.field_values = kwargs
     
-    def Add_Category(self):
+    def execute(self):
         # Unpack *args into field names and **kwargs into field values
         fields = ', '.join(self.field_names)
         values = tuple(self.field_values.values())
