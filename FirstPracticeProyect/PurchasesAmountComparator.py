@@ -23,3 +23,4 @@ class AmountComparator():
         expenses = pd.DataFrame(self.data_provider.execute_query(query, parameters), columns=[type, "Spent"])
         expenses = expenses.to_string(index=False)
         return (expenses)
+    

@@ -1,7 +1,7 @@
 import sqlite3
 import pandas as pd
 from AddRows import Repository, Add  # Import Category-related classes
-from PurchasesChartMaker import ChartDataProvider, ExpensesChartMaker
+from PurchasesChartMaker import ChartDataProvider, ExpensesChartMaker, CategoriesChartMaker, MonthsChartMaker, PersonalizedChartMaker
 from PurchasesAmountComparator import DataProvider, AmountComparator
 import re  # Regular expression module for input validation
 
@@ -58,14 +58,72 @@ def show_expenses(date1, date2, show_no_purchase_days):
 
         expenses_chart_maker.create_chart(query, date1, date2, show_no_purchase_days)
 
+def compare_categories_chart(date1, date2):
+    with sqlite3.connect('FirstPracticeProyect.db') as connection:
+        data_provider = ChartDataProvider(connection)
+        categories_comparator = CategoriesChartMaker(data_provider)
 
+        query = '''
+                SELECT c.CategoryName as Category, SUM(p.ProductPrice * p.ProductQuantity) as Spent, p.PurchaseDate
+                FROM Purchases p
+                JOIN Categories c ON c.CategoryID = p.CategoryID
+                WHERE p.PurchaseDate BETWEEN ? AND ?
+                GROUP BY c.CategoryName, p.PurchaseDate
+                ORDER BY c.CategoryName, p.PurchaseDate
+                '''
+        print(categories_comparator.compare(query, date1, date2))
+
+def compare_months_chart(month1, month2):
+    with sqlite3.connect('FirstPracticeProyect.db') as connection:
+        data_provider = ChartDataProvider(connection)
+        months_comparator = MonthsChartMaker(data_provider)
+
+        query1 = '''
+                SELECT PurchaseDate as Date, SUM(ProductPrice * ProductQuantity) as Spent
+                FROM Purchases              
+                WHERE SUBSTR( PurchaseDate, 1, 7)= ?
+                GROUP BY PurchaseDate
+                ORDER BY PurchaseDate 
+                '''
+        query2 = '''
+                SELECT PurchaseDate as Date, SUM(ProductPrice * ProductQuantity) as Spent
+                FROM Purchases              
+                WHERE SUBSTR( PurchaseDate, 1, 7)= ?
+                GROUP BY PurchaseDate
+                ORDER BY PurchaseDate 
+                '''
+        print(months_comparator.compare(query1, query2, month1, month2))
+
+
+def compare_personilized_chart(date1_sp, date1_ep, date2_sp, date2_ep):
+    with sqlite3.connect('FirstPracticeProyect.db') as connection:
+        data_provider = ChartDataProvider(connection)
+        comparator = PersonalizedChartMaker(data_provider)
+
+        query1 = '''
+                SELECT PurchaseDate as Date, SUM(ProductPrice * ProductQuantity) as Spent
+                FROM Purchases              
+                WHERE Date BETWEEN ? and ?
+                GROUP BY PurchaseDate
+                ORDER BY PurchaseDate 
+                '''
+        query2 = '''
+                SELECT PurchaseDate as Date, SUM(ProductPrice * ProductQuantity) as Spent
+                FROM Purchases              
+                WHERE Date BETWEEN ? and ?
+                GROUP BY PurchaseDate
+                ORDER BY PurchaseDate 
+                '''
+        print(comparator.compare(query1, query2, date1_sp, date1_ep, date2_sp, date2_ep))
+        
+        
 # ---- Amount functions ----
 
 # Function to compare prices between all the categories
 def compare_categories_amount(date1, date2):
     with sqlite3.connect('FirstPracticeProyect.db') as connection:
         data_provider = DataProvider(connection)
-        categories_coparator = AmountComparator(data_provider)
+        categories_comparator = AmountComparator(data_provider)
 
         query = '''
                 SELECT CategoryName as Category, SUM(ProductPrice * ProductQuantity) as Spent
@@ -76,12 +134,12 @@ def compare_categories_amount(date1, date2):
                 ORDER BY Spent
                 '''
         type = 'Categories'
-        print(categories_coparator.compare(query, date1, date2, type))
+        print(categories_comparator.compare(query, date1, date2, type))
 
 def compare_months_amount(month1, month2):
     with sqlite3.connect('FirstPracticeProyect.db') as connection:
         data_provider = DataProvider(connection)
-        categories_comparator = AmountComparator(data_provider)
+        months_comparator = AmountComparator(data_provider)
 
         query = '''
                 SELECT SUBSTR( PurchaseDate, 1, 7) as Months, SUM(ProductPrice * ProductQuantity) as Spent
@@ -91,12 +149,12 @@ def compare_months_amount(month1, month2):
                 ORDER BY Months
                 '''
         type = 'Months'
-        print(categories_comparator.compare(query, month1, month2, type))
+        print(months_comparator.compare(query, month1, month2, type))
 
 def compare_years_amount(year1, year2):
     with sqlite3.connect('FirstPracticeProyect.db') as connection:
         data_provider = DataProvider(connection)
-        categories_comparator = AmountComparator(data_provider)
+        years_comparator = AmountComparator(data_provider)
 
         query = '''
                 SELECT SUBSTR( PurchaseDate, 1, 4) as Years, SUM(ProductPrice * ProductQuantity) as Spent
@@ -106,7 +164,7 @@ def compare_years_amount(year1, year2):
                 ORDER BY Years
                 '''
         type = 'Years'
-        print(categories_comparator.compare(query, year1, year2, type))
+        print(years_comparator.compare(query, year1, year2, type))
 
 # -----------------Validations for the user--------------------
 # Function to input the name for a new category, ensuring uniqueness
@@ -154,7 +212,6 @@ def compare_expenses_amount():
                      1 - All Categories
                      2 - Months
                      3 - Years
-                     4 - Peronalized
                      ''')
     if consult2 == '1':
         date1 = input('Input the date from which you want to show the expenses: ')
@@ -165,15 +222,37 @@ def compare_expenses_amount():
         month2 = input('Input the month to which you want to show the expenses: ')
         compare_months_amount(month1, month2)
     if consult2 == '3':
-        year1 = input('Input  the month from which you want to show the expenses: ')
-        year2 = input('Input the month to which you want to show the expenses: ')
+        year1 = input('Input  the year from which you want to show the expenses: ')
+        year2 = input('Input the year to which you want to show the expenses: ')
         compare_years_amount(year1, year2)
 
+
+def compare_expenses_chart():
+    consult3 = input('''
+                     1 - All Categories
+                     2 - Months
+                     3 - Personalized
+                     ''')
+    if consult3 == '1':
+        date1 = input('Input the date from which you want to show the expenses: ')
+        date2 = input('Input the date to which you want to show the expenses: ')
+        compare_categories_chart(date1, date2)
+    if consult3 == '2':
+        month1 = input('Input the date from which you want to show the expenses: ')
+        month2 = input('Input the date to which you want to show the expenses: ')
+        compare_months_chart(month1, month2)
+    if consult3 == '3':
+        date1_sp = input('Input the date from which you want to show the expenses: ')
+        date1_ep = input('Input the date to which you want to show the expenses: ')
+        date2_sp = input('Input the date from which you want to show the expenses: ')
+        date2_ep = input('Input the date to which you want to show the expenses: ')
+        compare_personilized_chart(date1_sp, date1_ep, date2_sp, date2_ep)
 consult = input(f'''
                 1 - Add Category
                 2 - Add Purchase 
                 3 - Show Expenses
                 4 - Compare Expenses by amount
+                5 - Compare Expenses by Chart
                 ''')
 # Process user's choice
 if consult == '1':
@@ -194,5 +273,7 @@ elif consult == '3':
     show_expenses(date1, date2, show_no_purchase_days)
 elif consult == '4':
     compare_expenses_amount()
+elif consult == '5':
+    compare_expenses_chart()
 
 
