@@ -193,18 +193,18 @@ class PersonalizedChartMaker(ChartComparator):
         date1_df['Range'] = 1
         date2_df['Range'] = 2
         
-        # Reset index, add auto-incremented column, and set index back to date on both DataFrames
+        # Reset index, add auto-incrementedcolumn as Day, and set index back to date on both DataFrames
         date1_df.reset_index(inplace=True)
         date1_df['Day'] = date1_df.index + 1
         date1_df.set_index('index', inplace=True)
         
         date2_df.reset_index(inplace=True)
-        date2_df['Day'] = date1_df.index + 1
+        date2_df['Day'] = date2_df.index + 1
         date2_df.set_index('index', inplace=True)
         
         # Rename the index to 'Date' for both DataFrames
-        month1_df = month1_df.rename_axis(index='Date')
-        month2_df = month2_df.rename_axis(index='Date')
+        date1_df = date1_df.rename_axis(index='Date')
+        date2_df = date2_df.rename_axis(index='Date')
         
         
         # Concatenate both DataFrames to create a single DataFrame for comparison
