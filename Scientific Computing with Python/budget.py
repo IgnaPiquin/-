@@ -135,6 +135,7 @@ def create_spend_chart(categories):
 
     # Looping through all the lines below the separator line (----)
     for i in range(len(lines)-larger_name, len(lines), 1) :
+        #looping through all the names of the categories
         for name in names:
             # cp for character position
             cp =  i-(len(lines)-larger_name)
