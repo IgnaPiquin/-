@@ -5,7 +5,7 @@ class Category:
     
     # Method for cheking if there are enough funds to spend in the amount inputed
     def check_funds(self, amount):
-        if self.get_balance()>amount:
+        if self.get_balance() >= amount:
             return True
         else:
             return False
@@ -53,20 +53,23 @@ class Category:
         
         lines = ""
         for i in self.ledger:
+            
             #cheking if the description is too large
-            if len(i['description']) > 27:
+            if len(i['description']) > 23:
                 #shortening the description and asingning a distance
                 description = i['description'][:23]
-                distance = 0
+                distance = 30 - len(description)
             else:
                 #working out the distance and asingning the description
                 distance = 30 - len(i['description'])
                 description = i['description']
+            
             #converting the amount to a string with two decimal places
             amount = f"{i['amount']:.2f}"
             #shortening the amount if the number has more than 7 characters
             if len(amount) > 7:
                 amount = amount[:7]
+            
             # creating the lines with the description and amount cleaned up
             lines += f"{description}{amount:>{distance}}\n"
         #Getting the total balance and saving it in the last line
@@ -117,7 +120,7 @@ def create_spend_chart(categories):
                 lines[n] += " o "
             else: # Else concatenete "  "
                 lines[n] += "   "
-    print(lines)
+        lines[n] += " "
     # Creating a separator between the percentages of the categories and the names of the categories and appending it to the lines list
     separator = "-" * (len(categories) * 3 + 1)
     separator = f"    {separator}"
@@ -142,8 +145,8 @@ def create_spend_chart(categories):
             if name[cp:cp+1]:
                 lines[i] += f" {name[cp:cp+1]} "
             else:
-                print("hola")
                 lines[i] += f"   "
+        lines[i] += f" "
     
     graph = ""
     # Concatenating all the variables in the list into a string
@@ -153,7 +156,7 @@ def create_spend_chart(categories):
         else:
             graph += f"\n{lines[i]}"
     
-    return graph
+    return (f"Percentage spent by category\n" + graph)
             
         
         
@@ -169,7 +172,7 @@ test2 = Category("Santiago")
 
 testing.deposit(800, "Dolares")
 testing.transfer(200,  test2)
-testing.withdraw(100, "Testing the how to handle large strings")
+testing.withdraw(10, "Testing the how to handle large strings")
 test2.withdraw(100, "Testing the how to handle large strings")
 print(testing.ledger)
 print(testing.get_balance())
