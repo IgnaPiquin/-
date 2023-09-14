@@ -19,7 +19,7 @@ class Employee(Person):
         self.work=work
         self.Salary=Salary
     
-    #overwriting th method play
+    #overwriting the method play
     def play(self):
         print('Im working, I cant play...')
 
@@ -30,7 +30,7 @@ class Student(Person):
         self.university=university
         self.year=year
     
-    #overwriting th method play
+    #overwriting the method play
     def play(self):
         print('Im Studying, I cant play...')
     
